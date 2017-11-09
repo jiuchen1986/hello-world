@@ -1,2 +1,2 @@
 # hello-world
-This is the updated version for the hello world project on github
+This is the updated version of the hello world project on github for the local sync
