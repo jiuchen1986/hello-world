@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option go_package = "jiuchen1986/hello-world/pkg/nettest";
+
+package nettest;
+
+service NetTest {
+    rpc ListNumbers(Start) returns (stream Number) {}
+}
+
+message Start {
+    int32 number = 1;
+    int32 length = 2;
+}
+
+message Number {
+    int32 number = 1;
+}
