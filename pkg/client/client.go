@@ -20,16 +20,18 @@ type SimpleClient struct {
 	TestTimes    int
 	Host         string
 	Port         int
+	Timeout      int
 }
 
 // NewClient returns an instance of SimpleClient
-func NewClient(start, length int32, times, port int, host string) *SimpleClient {
+func NewClient(start, length int32, times, port, timeout int, host string) *SimpleClient {
 	return &SimpleClient{
 		StartNumber:  start,
 		ReturnLength: length,
 		TestTimes:    times,
 		Host:         host,
 		Port:         port,
+		Timeout:      timeout,
 	}
 }
 
@@ -48,7 +50,7 @@ func (sc *SimpleClient) netTest(pctx context.Context) {
 		}
 	}()
 	for i := 0; i < sc.TestTimes; i++ {
-		ctx, cancel := context.WithTimeout(pctx, 10*time.Second)
+		ctx, cancel := context.WithTimeout(pctx, time.Duration(sc.Timeout)*time.Second)
 		cancels = append(cancels, cancel)
 		stream, err := sc.Client.ListNumbers(ctx, st)
 		if err != nil {

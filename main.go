@@ -16,6 +16,7 @@ var (
 	host         = flag.String("host", "localhost", "host which server listening at, or client connecting to")
 	port         = flag.Int("port", 5473, "port which server listening at, or client connecting to")
 	mode         = flag.String("mode", "server", "support \"server\" and \"client\"")
+	timeout      = flag.Int("timeout", 10, "time before a client connection timeout in seconds")
 )
 
 func main() {
@@ -23,7 +24,7 @@ func main() {
 	flag.Parse()
 	if *mode == "client" {
 		log.Println("running as a client...")
-		client.NewClient(int32(*startNumber), int32(*returnLength), *testTimes, *port, *host).Run()
+		client.NewClient(int32(*startNumber), int32(*returnLength), *testTimes, *port, *timeout, *host).Run()
 	} else {
 		log.Println("running as a server...")
 		server.NewServer(*interval, *port, *host).Run()
