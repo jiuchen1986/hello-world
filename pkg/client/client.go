@@ -71,7 +71,7 @@ func (sc *SimpleClient) netTest(pctx context.Context) {
 // Run runs a nettest grpc client which continue doing net test
 func (sc *SimpleClient) Run() {
 	opts := []grpc.DialOption{grpc.WithInsecure()}
-
+	log.Printf("connecting %s:%d", sc.Host, sc.Port)
 	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", sc.Host, sc.Port), opts...)
 	if err != nil {
 		log.Fatalf("fail to dial: %v", err)

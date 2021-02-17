@@ -51,6 +51,7 @@ func (ss *SimpleServer) Run() {
 	}
 	grpcServer := grpc.NewServer()
 	pb.RegisterNetTestServer(grpcServer, ss)
+	log.Printf("starting server listening at %s:%d", ss.Host, ss.Port)
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("server failed: %v", err)
 	}
