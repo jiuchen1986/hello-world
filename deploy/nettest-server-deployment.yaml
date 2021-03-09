@@ -1,0 +1,104 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  generation: 1
+  labels:
+    app: nettest-server
+  name: nettest-server
+  namespace: default
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: nettest-server
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: nettest-server
+    spec:
+      containers:
+      - image: docker-ecr002.rnd.gic.ericsson.se/jiuchen1986/nettest:v0.0.1
+        imagePullPolicy: IfNotPresent
+        name: nettest
+        args:
+        - "-host=0.0.0.0"
+        ports:
+        - containerPort: 5473
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 0
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: nettest-server
+  name: nettest-server
+  namespace: default
+spec:
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - name: 5473-5473
+    port: 5473
+    protocol: TCP
+    targetPort: 5473
+  selector:
+    app: nettest-server
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}
+---
+
+apiVersion: v1
+data:
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURUekNDQWplZ0F3SUJBZ0lVRnZjdHlpN0JIMkdJZkM3cWZCRXRNck1ZOURNd0RRWUpLb1pJaHZjTkFRRUwKQlFBd0ZURVRNQkVHQTFVRUF4TUthM1ZpWlhKdVpYUmxjekFlRncweU1UQXpNRGd4TnpJeU5USmFGdzB5TWpBegpNRGd4TnpJeU5USmFNQjR4SERBYUJnTlZCQU1NRTJobGJHeHZMWGR2Y21RdVozSndZeTVqYjIwd2dnRWlNQTBHCkNTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFDcTBXUFpMaWN2OG5LZVdLanRCVzBNazlQS0RDcDUKNHRTQzhQV0xHWmRTOGxWcHlycE5ISzlYbUlLR3IxeXR5ZEszU1BiU21jQ0Frb0E5TVJnTkZsS0wyaGQ1QTJKbApHWW9GTzJ2ZWM5VUptQzUzWURwQ3dnMStyNTk1U3VHOUdEMVVURDQzVllZNWRkQU9STURCWmJCMWlhQlM4MHI4CmJ1NXZmUndJalZOb0VFa0RvVVlUZUhNUGNvTG5uUEU3V3MwcXE4dlRtMlY3WHJKUWVkenBaQmVTQnI4VnZxQU8KVXdzMDJreExZT24yZTF5NXJRUjBDTVc4NlBpempIWmZpbStnd0tMMDJTOU5FMTBGeUlqTEpIaitSTk4zWWpmcAorYnluZjNiZ1AvTm1BbWYvQldVL1kwYS82ZGVaMUNXZE0vNlI2WWJYNlBnNE1rT2txWUU0R2phekFnTUJBQUdqCmdZMHdnWW93SHdZRFZSMGpCQmd3Rm9BVVlUQ2RQUnJ4azFjMmxhYThlT2FFUTRIRFhBY3dDUVlEVlIwVEJBSXcKQURBT0JnTlZIUThCQWY4RUJBTUNCYUF3SUFZRFZSMGxBUUgvQkJZd0ZBWUlLd1lCQlFVSEF3RUdDQ3NHQVFVRgpCd01DTUNvR0ExVWRFUVFqTUNHSEJIOEFBQUdIQkFySWNOS0NFMmhsYkd4dkxYZHZjbVF1WjNKd1l5NWpiMjB3CkRRWUpLb1pJaHZjTkFRRUxCUUFEZ2dFQkFBdXZsQVBZTi80azZab3VlQlpzOTZCdmJ6L09kOWkxVGpMbUk2dDkKY1JKYXJJbkYxMHRYc1ZlR3hJTmFid0p0MGk1S0xXNWFUeHJQcjY1Z0ZSRGcvVlluRTZ3UFRwd1paWmZFVkVzZAoyQTdaUDNlcklYbWt4NXVubCtXaVh2aW0wS3hpaW44OFo4Y2pRYXJCSkdBUytGazVncDZ5cnNsQUJBYUR2Q1pXCjVNbkE0NVBrT2M1SkJaMDN2MjFlUFBFOHNqUE1HbHRWcjRrWUlxY0hsWnV5SnJDLzRhSW9MOENJcmcyOW15UXEKaW1md0plQnZ0SXo3ZlR6bVVDQUtldTQ1RTBOZmFjNm5Ka2ZoUUZpOTNMYXJYcWYvcWRGcnJ3UlZJanQ4cjZKMQpRUXRZU0oyYUtiWVpsM05IeklWV3FPMzFRa1g5NVFOVGh2VjBwNUVDSjVRTVd0QT0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
+  tls.key: LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JSUV2QUlCQURBTkJna3Foa2lHOXcwQkFRRUZBQVNDQktZd2dnU2lBZ0VBQW9JQkFRQ3EwV1BaTGljdjhuS2UKV0tqdEJXME1rOVBLRENwNTR0U0M4UFdMR1pkUzhsVnB5cnBOSEs5WG1JS0dyMXl0eWRLM1NQYlNtY0NBa29BOQpNUmdORmxLTDJoZDVBMkpsR1lvRk8ydmVjOVVKbUM1M1lEcEN3ZzErcjU5NVN1RzlHRDFVVEQ0M1ZZWTVkZEFPClJNREJaYkIxaWFCUzgwcjhidTV2ZlJ3SWpWTm9FRWtEb1VZVGVITVBjb0xublBFN1dzMHFxOHZUbTJWN1hySlEKZWR6cFpCZVNCcjhWdnFBT1V3czAya3hMWU9uMmUxeTVyUVIwQ01XODZQaXpqSFpmaW0rZ3dLTDAyUzlORTEwRgp5SWpMSkhqK1JOTjNZamZwK2J5bmYzYmdQL05tQW1mL0JXVS9ZMGEvNmRlWjFDV2RNLzZSNlliWDZQZzRNa09rCnFZRTRHamF6QWdNQkFBRUNnZ0VBRnAyMGo1dXB1cEpxRkliK2pxc3FQZ0VRaUc3RjdPOVlYYUhUa01BcHBlVEoKNUVEZ0c3ZVJpNUo0cmFab0tlWlB6TTZQUjJEdCtOZnN2SzFVVnQ4K3ZKOTZmaDR4bDlzaXlBQ1BEcHZkZC9DNwpMamtDWGJaZG5RbFpudkNJSk1ZaDBKaHJvRjNsY0pRbG9NMy9pMXVRV20rSFY1UTR1R1Zqa2tWSlFlU2NSMm14CkJmbzhSa0xrM2JMUXgvQXdpN0FXNCs5ejRkU0ZacDdXbUJidDErZnlMbjVpVDdBTTV2aXpTbGRxNEJqTkdSS3QKa0xKNnlCb0RjNFpSbFRoQWw5RWpUSmhzMDNHUHlkRytsUlM1WmttT0cydXdNWlliZHFYWjN5VXdDQXBpY0s2SApkRFBiYXBRNGR6OVhpRitDaTVRQUhlOGJTamhXYlBQLzZMUkxDRFFnNFFLQmdRRGlIMHp5emFsZFFvdlBvSmxBCkNHTFdPUnhIZjZNdUtEd3N6QXlJa2VaYWxOcTBYaWhwenRNeW5CdXk0MElKUzZqcFI2R1F1UG5HWGRlOGdDT3kKQ2d5cy9nN1NjOFZTUXBzNUFZcHNEajNySnpYdGhpRlg0cTRrSlpKVVNSMkxUeTFsc3psTTQ2WTZKWDZzbXQxNwptZkRoZTRINW9COUNVdEJoZG11NmUxZG1vd0tCZ1FEQlkyUjB4aFdRazFtRFQvUnN1Y0FaREhVZDZleENyZWpPCmlrRFhLZ2htcmNxZ3RiQVpMOGt1K3lXSG9XendBMEFCNEZPaDZtcmF2ZTFiSWtYUG9iVEh6blRDZm5oSktNRGkKU2RUeXlLeDYzc084TjNaYzg5OXpiQWg2dlV5a0lGek8vMjcrZUpwNFZkdlJaeU5zU2czUGFFVC9KbVJaQXRmMQpzT2ZJTXFiQXNRS0JnR0ZYQUJUMW01YmQ4cm1xZE00dnpmeFNFVzVsNzZVTEJQeHp5bUZ3RFMycExveStpNzhnCm5hSUh1WlRFWjhVQW9QSHJPQTNJMHgwbGdKMVF2QTBFYm5oNTFYK2Evckp1b2N0a2NtWVpxMlh6TnkvTXNjWFgKZXdkc2RSVjdkQkJvUVM2cWZGd3hFM21zY2w5ek95emVFK2U4OXpLeVQwS0p5OUpvMis4bThYVHBBb0dBY2VEVgpodTRlUk1TQU1aTWptK0xGKy9vWi9VT0NuTUZNRmxQVFd1Q2xrZEZGUU4yOGxSaE9vQnZFUGRvUkRFVGRyRDB0CkFtdklBSWRXL2hOd2lKUHdvTGd5aVZWdi82Uy84SUVKcE80R28xUUtid3M1NkFLejBvUUxlanQrcGlkb2YzeHIKSCs1bEIvZUhPZ2hDRThLSDMxckhSbmlWSHRWTjFxQVYzUTMycEFFQ2dZQTZzam45SzZ6WS95UFM0b2NuNHRQbwp1ODVZeWdjRjBuWldhTGZJWGhVa2d1dm9nSWhsWFhKbmpOZVBBNXc5VStsS2tkdFpPSUJvbW1UMmZMMmZ5M01EClE1Mi9ydnkrbHBmVjQ1bktZRDJVSlZpMFZQSDlqMndWeVBrL3dod3lRZ3ozL0VyaW1Wa0pSKzlRQWZhT2FMcjcKelB6bUJmcmxKdWUxbnkvL01PUXY3QT09Ci0tLS0tRU5EIFBSSVZBVEUgS0VZLS0tLS0K
+kind: Secret
+metadata:
+  name: nettest-server-cert
+type: kubernetes.io/tls
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  creationTimestamp: null
+  name: nettest-server
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
+spec:
+  ingressClassName: default
+  rules:
+  - host: hello-word.grpc.com
+    http:
+      paths:
+      - backend:
+          service:
+            name: nettest-server
+            port:
+              number: 5473
+        path: /nettest.NetTest/ListNumbers
+        pathType: Prefix
+  tls:
+  - hosts:
+    - example.com
+    secretName: nettest-server-cert
+status:
+  loadBalancer: {}

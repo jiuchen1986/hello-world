@@ -8,8 +8,10 @@ import (
 	"time"
 
 	pb "jiuchen1986/hello-world/pkg/nettest"
+	"jiuchen1986/hello-world/pkg/util"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 // SimpleClient wraps a nettest grpc client
@@ -21,10 +23,14 @@ type SimpleClient struct {
 	Host         string
 	Port         int
 	Timeout      int
+	CaCert       string
+	Cert         string
+	Key          string
 }
 
 // NewClient returns an instance of SimpleClient
-func NewClient(start, length int32, times, port, timeout int, host string) *SimpleClient {
+func NewClient(start, length int32, times, port, 
+                   timeout int, host string, cacert, cert, key string) *SimpleClient {
 	return &SimpleClient{
 		StartNumber:  start,
 		ReturnLength: length,
@@ -32,6 +38,9 @@ func NewClient(start, length int32, times, port, timeout int, host string) *Simp
 		Host:         host,
 		Port:         port,
 		Timeout:      timeout,
+		CaCert:       cacert,
+		Cert:         cert,
+		Key:          key,
 	}
 }
 
@@ -73,6 +82,14 @@ func (sc *SimpleClient) netTest(pctx context.Context) {
 // Run runs a nettest grpc client which continue doing net test
 func (sc *SimpleClient) Run() {
 	opts := []grpc.DialOption{grpc.WithInsecure()}
+	if sc.CaCert != "" {
+	       tlsConfig, err := util.GetClientTLSConfig(sc.CaCert, sc.Cert, sc.Key, sc.Host)
+	       if err != nil {
+	               log.Fatalf("fail to create tls: %v", err)
+               }
+	       dialOption := grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig))
+	       opts = []grpc.DialOption{dialOption}
+	}
 	log.Printf("connecting %s:%d", sc.Host, sc.Port)
 	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", sc.Host, sc.Port), opts...)
 	if err != nil {
